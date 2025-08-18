@@ -1,4 +1,4 @@
-export const mainNav = [
+﻿export const mainNav = [
   { href: "/myaccount", label: "MyAccount" },
   { href: "/residential", label: "Residential" },
   { href: "/business", label: "Business" },
