@@ -1,8 +1,8 @@
-﻿/* Tailwind v4 */
-@import "tailwindcss";
-
-/* Tell Tailwind where your components/pages live (relative to this file) */
+﻿@import "tailwindcss";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 
-/* Optional small base */
+/* Leaflet map styles */
+@import "leaflet/dist/leaflet.css";
+
+/* Optional tiny base */
 html, body { background: #fafafa; color: #111827; }
