@@ -4,12 +4,11 @@ import crypto from "node:crypto";
 type User = {
   username: string;      // unique
   email: string;
-  passwordHash: string;  // sha256 for demo only (use bcrypt in production)
+  passwordHash: string;  // demo only; use bcrypt in prod
   createdAt: string;
 };
 
-// In-memory user store (demo)
-// NOTE: resets on server restart / redeploy
+// In-memory store (resets on restart/redeploy)
 const users = new Map<string, User>(); // key = username.toLowerCase()
 
 function hash(pw: string) {
@@ -41,23 +40,26 @@ export function verifyLogin(username: string, password: string) {
 
 const SESSION_COOKIE = "yg_session";
 
-export function createSession(username: string) {
-  // DEMO cookie (plain). For production: sign + httpOnly + secure + short TTL.
-  cookies().set(SESSION_COOKIE, username, {
+// NOTE: Next 15+ => cookies() is async
+export async function createSession(username: string) {
+  const store = await cookies();
+  store.set(SESSION_COOKIE, username, {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    // secure: true, // enable in production behind HTTPS
+    // secure: true, // enable on HTTPS
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
 }
 
-export function destroySession() {
-  cookies().delete(SESSION_COOKIE);
+export async function destroySession() {
+  const store = await cookies();
+  store.delete(SESSION_COOKIE);
 }
 
-export function getSessionUser() {
-  const c = cookies().get(SESSION_COOKIE)?.value;
+export async function getSessionUser() {
+  const store = await cookies();
+  const c = store.get(SESSION_COOKIE)?.value;
   if (!c) return null;
   const key = c.toLowerCase();
   const u = users.get(key);

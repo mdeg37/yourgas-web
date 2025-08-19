@@ -1,7 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSession, destroySession, getSessionUser, registerUser, verifyLogin } from "@/lib/auth";
+import {
+  createSession,
+  destroySession,
+  getSessionUser,
+  registerUser,
+  verifyLogin,
+} from "@/lib/auth";
 
 // Login
 export async function loginAction(formData: FormData) {
@@ -9,15 +15,15 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get("password") || "");
 
   if (!username || !password) {
-    return { ok: false, error: "Please enter your username and password." };
+    return { ok: false, error: "Please enter your username and password." } as const;
   }
 
   const res = verifyLogin(username, password);
   if (!res.ok) {
-    return { ok: false, error: res.error };
+    return { ok: false, error: res.error } as const;
   }
 
-  createSession(res.user.username);
+  await createSession(res.user.username);
   redirect("/myaccount");
 }
 
@@ -29,26 +35,30 @@ export async function registerAction(formData: FormData) {
   const confirm = String(formData.get("confirm") || "");
 
   if (!username || !email || !password || !confirm) {
-    return { ok: false, error: "All fields are required." };
+    return { ok: false, error: "All fields are required." } as const;
   }
   if (password !== confirm) {
-    return { ok: false, error: "Passwords do not match." };
+    return { ok: false, error: "Passwords do not match." } as const;
   }
   if (password.length < 8) {
-    return { ok: false, error: "Password must be at least 8 characters." };
+    return { ok: false, error: "Password must be at least 8 characters." } as const;
   }
 
   const res = registerUser(username, email, password);
   if (!res.ok) {
-    return { ok: false, error: res.error };
+    return { ok: false, error: res.error } as const;
   }
 
-  createSession(res.user.username);
+  await createSession(res.user.username);
   redirect("/myaccount");
 }
 
 // Forgot (mock)
-export async function forgotAction(formData: FormData) {
+export type ForgotResult =
+  | { ok: true; message: string }
+  | { ok: false; error: string };
+
+export async function forgotAction(formData: FormData): Promise<ForgotResult> {
   const email = String(formData.get("email") || "");
   if (!email) {
     return { ok: false, error: "Enter the email on your account." };
@@ -59,13 +69,12 @@ export async function forgotAction(formData: FormData) {
 
 // Logout
 export async function logoutAction() {
-  destroySession();
+  await destroySession();
   redirect("/myaccount/login");
 }
 
-// Helper for server pages
+// Helper for server pages (must be async in a "use server" file)
 export async function requireUser() {
-  // getSessionUser is sync, but wrapping it in an async fn satisfies Server Actions rule
-  const user = getSessionUser();
+  const user = await getSessionUser();
   return user ?? null;
 }
