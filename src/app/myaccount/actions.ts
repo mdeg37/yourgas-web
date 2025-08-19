@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { redirect } from "next/navigation";
 import {
@@ -63,7 +63,6 @@ export async function forgotAction(formData: FormData): Promise<ForgotResult> {
   if (!email) {
     return { ok: false, error: "Enter the email on your account." };
   }
-  // Demo: pretend we sent email
   return { ok: true, message: "If an account exists for that email, reset instructions have been sent." };
 }
 
@@ -73,7 +72,7 @@ export async function logoutAction() {
   redirect("/myaccount/login");
 }
 
-// Helper for server pages (must be async in a "use server" file)
+// Helper for server pages (must be async since file is "use server")
 export async function requireUser() {
   const user = await getSessionUser();
   return user ?? null;

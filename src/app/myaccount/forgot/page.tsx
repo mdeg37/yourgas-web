@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -20,7 +20,7 @@ export default function ForgotPage() {
           startTransition(async () => {
             const res = await forgotAction(fd);
 
-            // Safe narrowing: only set a string or null
+            // SAFELY narrow and only set string or null
             if (res && "ok" in res) {
               if (res.ok && "message" in res) {
                 setMsg(res.message ?? null);
